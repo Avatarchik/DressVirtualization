@@ -1,0 +1,36 @@
+{% extends "FittingRoom/base.html" %}
+
+{% block content %}
+    <!-- Two -->
+    <section id="two" class="wrapper style1 special">
+        <div class="inner">
+            <h2>Our 3D Model</h2>
+            <canvas class = "center" id="model_canvas" width="300" height="300"></canvas>
+            <script src = "/static/FittingRoom/Scripts/js/Canvas/model.js"></script>
+        </div>
+    </section>
+
+    <section>
+        <div style = "text-align: center;">
+            <h2>Meet Stefani</h2>
+            <blockquote>
+                Stefani is the first default 3D model for Perfect-Fit. <br/>
+                She is a happy-go-lucky person waiting to help you find that one dress <br/>
+                that is meant for you.
+            </blockquote>
+        </div>
+    </section>
+
+    <section>
+        <div style = "text-align: center;">
+            <h4>Like what you just read?</h4>
+            <blockquote>
+                Stefani is very eager to help you. Register now and let her help
+                you now!
+            </blockquote>
+            <ul class="actions">
+                <li><a href="{% url 'User-Register' %}" class="button scrolly">Register Now</a></li>
+            </ul>
+        </div>
+    </section>
+{% endblock content %}

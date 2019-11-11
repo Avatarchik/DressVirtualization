@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="/static/FittingRoom/CSS/main.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        {% if title %}
+            <title>Perfect-Fit - {{ title }}</title>
+        {% else %}
+            <title>Perfect-Fit - Dress Visualization</title>
+        {% endif %}
+    </head>
+
+    <body>
+        <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.js"></script>
+        <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+
+        <script type="text/javascript" src = "/static/FittingRoom/Scripts/js/Three/OrbitControls.js"></script>
+        <script type="text/javascript" src = "/static/FittingRoom/Scripts/js/Three/GLTFLoader.js"></script>
+
+        <!-- Header -->
+        <header id="header">
+            <nav class="left">
+                <a href="#menu">
+                    <span>
+                        <div>
+                            <div style = "width: 25px; height:4px; background-color: #25a2c3; margin: 5px; margin-top: 25%;"></div>
+                            <div style = "width: 25px; height:4px; background-color: #25a2c3; margin: 5px;"></div>
+                            <div style = "width: 25px; height:4px; background-color: #25a2c3; margin: 5px;"></div>
+                        </div>
+                    </span>
+                </a>
+            </nav>
+            <a href="{% url 'FittingRoom-Home' %}"><img style = "width: 100; height:100%;" src = "/static/FittingRoom/Images/logo.png"></a>
+            <nav class="right">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'User-Profile' %}" class = "button alt">{{ user.username }}</a>
+                    <a href="{% url 'User-Logout' %}" class = "button alt">Logout</a>
+                {% else %}
+                    <a href="{% url 'User-Login' %}" class="button alt">Log in</a>
+                    <a href="{% url 'User-Register' %}" class = "button alt">Register</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <!-- Menu -->
+        <nav id="menu">
+            <h1>Menu</h1>
+            <ul class="links">
+                <li><a href="/">Home</a></li>
+            </ul>
+            <ul class="actions vertical">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'User-Profile' %}" class = "button fit">{{ user.username }}</a></li>
+                    <li><a href="{% url 'User-Logout' %}" class = "button fit">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'User-Login' %}" class="button fit">Login</a></li>
+                    <li><a href = "{% url 'User-Register' %}" class = "button fit">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        {% block content %}{% endblock content %}
+
+        <!-- Footer -->
+        <footer id="footer">
+            <div class="inner">
+                <h2>Get In Touch</h2>
+                <ul class="actions">
+                    <li>
+                        <span class="icon fa-phone"></span>
+                        <a href="#">(909) 869-7659</a>
+                    </li>
+                    <li>
+                        <span class="icon fa-envelope"></span>
+                        <a href="#">info@perfectfit.com</a>
+                    </li>
+                    <li>
+                        <span class="fa fa-map-marker"></span>
+                        3801 W Temple Ave, Pomona, CA 91768
+                    </li>
+                </ul>
+            </div>
+            <div class="copyright">
+                &copy; 2019 Perfect-Fit. All rights reserved.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="/static/FittingRoom/Scripts/js/jquery.min.js"></script>
+        <script src="/static/FittingRoom/Scripts/js/jquery.scrolly.min.js"></script>
+        <script src="/static/FittingRoom/Scripts/js/skel.min.js"></script>
+        <script src="/static/FittingRoom/Scripts/js/util.js"></script>
+        <script src="/static/FittingRoom/Scripts/js/main.js"></script>
+    </body>
+</html>

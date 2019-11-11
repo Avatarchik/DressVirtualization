@@ -1,0 +1,17 @@
+{% extends "FittingRoom/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2 style = "text-align: center;" class = "center">Logged out successfully</h2>
+    <div class="content-section" class = "center" style = "text-align: center;">
+        <div>
+            <small class = "text-muted" class = "center">
+                <p class = "text-align: center;">
+                    Sign back in? <a href="{% url 'User-Login' %}">Sign In</a>
+                </p>
+            </small>
+        </div>
+    </div>
+
+    <meta http-equiv = "refresh" content="2; url = '{% url 'FittingRoom-Home' %}'" />
+{% endblock content %}

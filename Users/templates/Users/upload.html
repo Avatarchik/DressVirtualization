@@ -1,0 +1,15 @@
+{% extends 'FittingRoom/base.html' %}
+
+{% block content %}
+    <div class = "form-group" style = "text-align: center;">
+        <br/><h4>Upload Dresses</h4>
+        <form class = "center" method="post" enctype = "multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="dress_image">
+            <button type="submit" name="button">Upload</button>
+        </form>
+        {% if url %}
+        <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
+        {% endif %}
+    </div>
+{% endblock content %}
