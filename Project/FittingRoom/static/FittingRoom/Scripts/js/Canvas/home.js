@@ -33,6 +33,9 @@ controls.enableZoom = false;
 // Disable Rotation
 controls.enableRotate = false;
 
+// Disble Keyboard Control Movements
+controls.enabled = false;
+
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
 scene.add( ambientLight );
