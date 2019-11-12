@@ -30,6 +30,11 @@
             <div style = "text-align: center;">
                 <a href="{% url 'User-Upload' %}" class = "button alt" width = 50>Upload Dresses</a>
             </div>
+            {% if not user.is_superuser %}
+            <small>
+                <br/><p>Delete account? <a href="{% url 'User-Delete-Confirmation' %}">Unsubscribe</a></p>
+            </small>
+            {% endif %}
         </form>
     </div>
     <br/><br/>

@@ -5,6 +5,7 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 def register(request):
@@ -64,3 +65,28 @@ def upload_dress(request):
         name = upload_storage.save(dress.name, dress)
         context['url'] = upload_storage.url(name)
     return render(request, 'Users/upload.html')
+
+
+@login_required
+def delete_profile_confirmation(request):
+    return render(request, 'Users/user_delete_confirmation.html', {'title': 'Delete Confirmation'})
+
+
+@login_required
+def delete_profile(request):
+    try:
+        u = User.objects.get(username = request.user.username);
+        u.delete()
+        messages.error(request, f"{ username } is deleted")
+        print('User successfully deleted')
+
+    except User.DoesNotExist:
+        messages.error(request, f"{ username } does not exist")
+        print('User does not exist')
+        return render(request, 'FittingRoom/home.html', {'title': 'Home'})
+
+    except Exception as e:
+        print('Unknown error occurred')
+        return render(request, 'Users/logout.html', {'title': 'Home'})
+
+    return render(request, 'Users/logout.html', {'title': 'Home'})
