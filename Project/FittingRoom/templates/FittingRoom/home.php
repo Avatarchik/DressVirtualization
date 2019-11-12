@@ -1,3 +1,7 @@
+<?php
+    session_start();
+?>
+
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -53,8 +57,6 @@
                 <li><a href="{% url 'User-Logout' %}" class = "button fit">Logout</a></li>
             </ul>
         </nav>
-
-
 
         <div class="center">
             <form class="center" method="post">
@@ -118,6 +120,16 @@
                         function ( gltf )
                         {
                             var object = gltf.scene;
+
+                            var parts = object.children;
+
+                            for (var idx = 0; idx < parts.length; idx++)
+                                console.log(parts[idx])
+
+                            var body = parts[2].children[1];
+                            body.scale.y = 0.5;
+                            console.log(body);
+
                             var mixer = new THREE.AnimationMixer(object);
 
                             gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
@@ -177,6 +189,47 @@
                 </table>
                 <button type="button" onclick = "changeHeight()" class = "button alt">Update Model</button>
             </form>
+        </div>
+
+        <div id = "images">
+            <input type="button" value = "Load Dresses" onclick = "callForImages()"/>
+            <script>
+                var imageContainer = document.getElementById("images");
+
+                function callForImages()
+                {
+                    var httpRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+
+                    httpRequest.onload = function() {
+                        var dataStr = JSON.stringify(httpRequest.responseText);
+                        var result = JSON.parse(dataStr);
+
+                        loadImages(result);
+                    }
+
+                    try
+                    {
+                        httpRequest.open("GET", "/static/FittingRoom/Scripts/php/getImages.php", true);
+                        httpRequest.send(null);
+                    }
+                    catch(e)
+                    {
+                        console.log("Error");
+
+                    }
+                }
+
+                function loadImages(images)
+                {
+                    for (var idx = 0; idx < images.length; idx++)
+                    {
+                        var newImage = document.createElement("img");
+                        newImage.setAttribute("src", images[idx]);
+
+                        imageContainer.appendChild(newImage);
+                    }
+                }
+            </script>
         </div>
 
         <!-- Scripts -->

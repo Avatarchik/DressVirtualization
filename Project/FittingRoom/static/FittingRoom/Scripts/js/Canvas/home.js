@@ -51,6 +51,16 @@ loader.load( '/static/FittingRoom/Models/Bashful.glb',
 function ( gltf )
 {
     var object = gltf.scene;
+
+    var parts = object.children;
+
+    for (var idx = 0; idx < parts.length; idx++)
+        console.log(parts[idx])
+
+    var body = parts[2].children[1];
+    body.scale.y = 0.5;
+    console.log(body);
+
     var mixer = new THREE.AnimationMixer(object);
 
     gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });

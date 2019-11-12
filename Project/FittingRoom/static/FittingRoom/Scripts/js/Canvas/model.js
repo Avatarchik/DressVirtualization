@@ -27,14 +27,11 @@ document.body.appendChild(renderer.domElement);
 // Load the Orbitcontroller
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-// Disable Zoom
-controls.enableZoom = false;
+var shift = false;
 
-// Disable Rotation
-controls.enableRotate = false;
-
-// Disable Keyboard Control Movements
-controls.enabled = false;
+controls.enableZoom = shift;
+controls.enableRotate = shift;
+controls.enabled = shift;   // Enable Keyboard controls
 
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
@@ -51,6 +48,16 @@ loader.load( '/static/FittingRoom/Models/greeting.glb',
 function ( gltf )
 {
     var object = gltf.scene;
+
+    var parts = object.children;
+
+    for (var idx = 0; idx < parts.length; idx++)
+        console.log(parts[idx])
+
+    var body = parts[2].children[1];
+    body.scale.y = 0.5;
+    console.log(body);
+
     var mixer = new THREE.AnimationMixer(object);
 
     gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
