@@ -8,7 +8,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="/static/FittingRoom/CSS/main.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
         {% if title %}
             <title>Perfect-Fit - {{ title }}</title>
@@ -191,22 +191,42 @@
             </form>
         </div>
 
+        <div id = "dress_library" style = "text-align: center;">
+            <button type="button" name="button">Dresses</button>
+            <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+            <script type="text/javascript">
+                $(function() {
+                    $('button').click(function() {
+                        $.ajax({
+                            url: '{% url "FittingRoom-Dress-Library" %}',
+                            type: 'POST',
+                            success: function() {
+                                var success = "No Errors encountered.";
+                                console.log(success);
+                            },
+                            error: function() {
+                                var fail = "Unknown error(s) encountered.";
+                                console.log(fail);
+                            }
+                        })
+                    });
+                });
+            </script>
+        </div>
+
         <div id = "images">
-            <input type="button" value = "Load Dresses" onclick = "callForImages()"/>
+            <!--<input type="button" value = "Load Dresses" onclick = "callForImages()"/>-->
             <script>
                 var imageContainer = document.getElementById("images");
 
                 function callForImages()
                 {
                     var httpRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-
                     httpRequest.onload = function() {
                         var dataStr = JSON.stringify(httpRequest.responseText);
                         var result = JSON.parse(dataStr);
-
                         loadImages(result);
                     }
-
                     try
                     {
                         httpRequest.open("GET", "/static/FittingRoom/Scripts/php/getImages.php", true);
@@ -215,7 +235,6 @@
                     catch(e)
                     {
                         console.log("Error");
-
                     }
                 }
 
@@ -225,7 +244,6 @@
                     {
                         var newImage = document.createElement("img");
                         newImage.setAttribute("src", images[idx]);
-
                         imageContainer.appendChild(newImage);
                     }
                 }
