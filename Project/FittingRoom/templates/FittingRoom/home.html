@@ -127,7 +127,14 @@
                             else
                             {
                                 var y_axis = (foot * 0.4) + (inches * 0.033333333);
-                                gltf.scene.scale.set( 2, y_axis, 2 );
+
+                                if (y_axis < 2.44)
+                                    gltf.scene.scale.set( 2, y_axis, 2 );
+                                else
+                                {
+                                    var max_height = 2.43;
+                                    gltf.scene.scale.set(2, max_height, 2);
+                                }
                             }
 
                             gltf.scene.position.x = 0;
