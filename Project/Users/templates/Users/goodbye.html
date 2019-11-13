@@ -1,0 +1,16 @@
+{% extends "FittingRoom/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="center">
+        <form class="center" method="post">
+            {% csrf_token %}
+            <div style = "text-align: center;">
+                <span style = "font-size: 150px; text-align: center;" class = "center">&#9785;</span>
+                <p>We are sorry to see you go. Please come back soon.</p>
+            </div>
+        </form>
+    </div>
+
+    <meta http-equiv = "refresh" content="5; url = '{% url 'FittingRoom-Home' %}'" />
+{% endblock content %}

@@ -1,3 +1,6 @@
+var foot = document.getElementById("foot").value;
+var inches = document.getElementById("inches").value;
+
 var clock = new THREE.Clock();
 
 //RENDERER
@@ -8,7 +11,7 @@ var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHe
 camera.position.set( 0, 0, 15 );
 
 // Load a Renderer
-var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('default_canvas'), antialias: true});
+var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('model_canvas'), antialias: true});
 renderer.setClearColor( 0xffffff );
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize((window.innerWidth / 2), (window.innerHeight / 2) );
@@ -29,9 +32,9 @@ var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 var shift = false;
 
-controls.enableZoom = false;
-controls.enableRotate = false;
-controls.enabled = false;
+controls.enableZoom = shift;
+controls.enableRotate = shift;
+controls.enabled = shift;   // Enable Keyboard controls
 
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
@@ -43,8 +46,16 @@ directionalLight.position.set( 0, 1, 1 ).normalize();
 scene.add( directionalLight );
 
 
+// Load Dress
+var texture = new THREE.TextureLoader();
+var material = new THREE.MeshBasicMaterial( {
+    map: texture.load('/static/FittingRoom/Dresses/dress_01.png'), transparent: true});
+var geometry = new THREE.PlaneGeometry(7, 7*.75);
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.set(-0.5, -0.5, 1);
+
 var loader = new THREE.GLTFLoader();
-loader.load( '/static/FittingRoom/Models/Bashful.glb',
+loader.load( '/static/FittingRoom/Models/greeting.glb',
 function ( gltf )
 {
     var object = gltf.scene;
@@ -62,7 +73,21 @@ function ( gltf )
 
     gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
 
-    gltf.scene.scale.set( 2, 2, 5 );
+    if (foot <= 0 && inches <= 0)
+        gltf.scene.scale.set( 2, 2, 2 );
+    else
+    {
+        var y_axis = (foot * 0.4) + (inches * 0.033333333);
+
+        if (y_axis < 2.44)
+            gltf.scene.scale.set( 2, y_axis, 2 );
+        else
+        {
+            var max_height = 2.43;
+            gltf.scene.scale.set(2, max_height, 2);
+        }
+    }
+
     gltf.scene.position.x = 0;
     gltf.scene.position.y = -3;
     gltf.scene.position.z = 0;

@@ -87,6 +87,6 @@ def delete_profile(request):
 
     except Exception as e:
         print('Unknown error occurred')
-        return render(request, 'Users/logout.html', {'title': 'Home'})
+        return render(request, 'Users/goodbye.html', {'title': 'Home'})
 
-    return render(request, 'Users/logout.html', {'title': 'Home'})
+    return render(request, 'Users/goodbye.html', {'title': 'Home'})

@@ -1,7 +1,3 @@
-<?php
-    session_start();
-?>
-
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -51,6 +47,11 @@
             <ul class="links">
                 <li><a href="/">Home</a></li>
                 <li><a href="{% url 'FittingRoom-Contact' %}">Contact</a></li>
+                <li>
+                    <div>
+                        <button type="button" class = "button alt" onclick = "dress()">Put on dress</button>
+                    </div>
+                </li>
             </ul>
             <ul class="actions vertical">
                 <li><a href="{% url 'User-Profile' %}" class = "button fit">{{ user.username }}</a></li>
@@ -62,8 +63,155 @@
             <form class="center" method="post">
                 {% csrf_token %}
                 <script type="text/javascript">
+                    dressOn = false;
+
+                    function checkDress()
+                    {
+                        if (dressOn)
+                            console.log("DressOn: True");
+                        else
+                            console.log("DressOn: False");
+                    }
+
+                    function positionAlgorithmFoot(foot)
+                    {
+                        if (foot <= 1) return 2.5
+                        else
+                            return positionAlgorithmFoot(foot - 1) - 0.45
+                    }
+
+                    function positionAlgorithmInches(inches)
+                    {
+                        if (inches <= 1) return 2.5
+                        else
+                            return positionAlgorithmInches(inches - 1) - 0.0375
+                    }
+
                     function changeHeight()
                     {
+                        checkDress();
+
+                        if (dressOn == false)
+                        {
+                            var foot = document.getElementById("foot").value;
+                            var inches = document.getElementById("inches").value;
+
+                            var clock = new THREE.Clock();
+
+                            //RENDERER
+                            var scene = new THREE.Scene();
+
+                            // Load Camera Perspektive
+                            var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 3000 );
+                            camera.position.set( 0, -3, 15 );
+
+                            // Load a Renderer
+                            var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('default_canvas'), antialias: true});
+                            renderer.setClearColor( 0xffffff );
+                            renderer.setPixelRatio( window.devicePixelRatio );
+                            renderer.setSize((window.innerWidth / 2), (window.innerHeight / 2) );
+
+                            // Used to resize the canvas and model
+                            window.addEventListener( 'resize',
+                            function()
+                            {
+                                camera.aspect = window.innerWidth / window.innerHeight;
+                                camera.updateProjectionMatrix();
+                                renderer.setSize((window.innerWidth / 2), (window.innerHeight / 2));
+                            }, false );
+
+                            document.body.appendChild(renderer.domElement);
+
+                            // Load the Orbitcontroller
+                            var controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+                            // Disable Zoom
+                            controls.enableZoom = false;
+
+                            // Disable Rotation
+                            controls.enableRotate = false;
+
+                            // Disable Keyboard Control Movements
+                            controls.enabled = false;
+
+                            // Load Light
+                            var ambientLight = new THREE.AmbientLight( 0xcccccc );
+                            scene.add( ambientLight );
+
+
+                            var directionalLight = new THREE.DirectionalLight( 0xffffff );
+                            directionalLight.position.set( 0, 1, 1 ).normalize();
+                            scene.add( directionalLight );
+
+
+                            var loader = new THREE.GLTFLoader();
+                            loader.load( '/static/FittingRoom/Models/Bashful.glb',
+                            function ( gltf )
+                            {
+                                var object = gltf.scene;
+
+                                var parts = object.children;
+
+                                for (var idx = 0; idx < parts.length; idx++)
+                                    console.log(parts[idx])
+
+                                var body = parts[2].children[1];
+                                body.scale.y = 0.5;
+                                console.log(body);
+
+                                var mixer = new THREE.AnimationMixer(object);
+
+                                gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
+
+                                if (foot <= 0 && inches <= 0)
+                                    gltf.scene.scale.set( 2, 2, 2 );
+                                else
+                                {
+                                    var y_axis = (foot * 0.4) + (inches * 0.033333333);
+
+                                    if (y_axis < 2.44)
+                                        gltf.scene.scale.set( 2, y_axis, 2 );
+                                    else
+                                    {
+                                        var max_height = 2.43;
+                                        gltf.scene.scale.set(2, max_height, 2);
+                                    }
+                                }
+
+                                gltf.scene.position.x = 0;
+                                gltf.scene.position.y = -3;
+                                gltf.scene.position.z = 0;
+
+                                function animate()
+                                {
+                                    requestAnimationFrame( animate );
+                                    var delta3 = clock.getDelta();
+
+                                    if ( mixer ) mixer.update( delta3 );
+                                    renderer.render( scene, camera );
+                                }
+                                animate();
+
+                                scene.add( gltf.scene );
+                            });
+
+                            function render()
+                            {
+                                renderer.render(scene, camera);
+                                requestAnimationFrame(render);
+                            }
+
+                            render();
+                        }
+                        else
+                            dress();
+                    }
+
+
+                    function dress()
+                    {
+                        checkDress();
+
                         var foot = document.getElementById("foot").value;
                         var inches = document.getElementById("inches").value;
 
@@ -114,9 +262,30 @@
                         directionalLight.position.set( 0, 1, 1 ).normalize();
                         scene.add( directionalLight );
 
+                        // Load Dress
+                        var texture = new THREE.TextureLoader();
+                        var material = new THREE.MeshBasicMaterial( {
+                            map: texture.load('/static/FittingRoom/Dresses/dress_01.png'), transparent: true});
+                        var length = (foot * 1.38) + (inches * 0.115);
+
+                        if (foot <= 0 && inches <= 0)
+                            var geometry = new THREE.PlaneGeometry(6.5, 6.9*.75);
+                        else
+                            var geometry = new THREE.PlaneGeometry(6.5, (length)*.75);
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+                        if (foot <= 0 && inches <= 0)
+                            mesh.position.set(-0.5, -0.7, 1);
+                        else
+                        {
+                            var pos = -(positionAlgorithmFoot(foot) - (inches * 0.0375));
+                            console.log("Pos: ", pos)
+                            mesh.position.set(-0.5, pos, 1);
+                        }
 
                         var loader = new THREE.GLTFLoader();
-                        loader.load( '/static/FittingRoom/Models/Bashful.glb',
+                        loader.load( '/static/FittingRoom/Models/Idle_State_bodyless.glb',
                         function ( gltf )
                         {
                             var object = gltf.scene;
@@ -144,7 +313,7 @@
                                     gltf.scene.scale.set( 2, y_axis, 2 );
                                 else
                                 {
-                                    var max_height = 2.43;
+                                    var max_height = 2.43; // 6' 1"
                                     gltf.scene.scale.set(2, max_height, 2);
                                 }
                             }
@@ -164,6 +333,7 @@
                             animate();
 
                             scene.add( gltf.scene );
+                            scene.add( mesh );
                         });
 
                         function render()
@@ -173,7 +343,9 @@
                         }
 
                         render();
+                        dressOn = true;
                     }
+
                 </script>
 
                 <canvas id = "default_canvas" class = "center"></canvas>
@@ -191,7 +363,8 @@
             </form>
         </div>
 
-        <div id = "dress_library" style = "text-align: center;">
+
+        <!--<div id = "dress_library" style = "text-align: center;">
             <button type="button" name="button">Dresses</button>
             <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
             <script type="text/javascript">
@@ -212,7 +385,8 @@
                     });
                 });
             </script>
-        </div>
+        </div>-->
+
 
         <div id = "images">
             <!--<input type="button" value = "Load Dresses" onclick = "callForImages()"/>-->

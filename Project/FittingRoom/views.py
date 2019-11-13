@@ -4,9 +4,9 @@ from django.views.decorators.csrf import csrf_exempt,csrf_protect
 
 def home(request):
     if request.user.is_authenticated:
-        return render(request, 'FittingRoom/home.php', { 'title': 'Home' })
+        return render(request, 'FittingRoom/home.html', { 'title': 'Home' })
     else:
-        return render(request, 'FittingRoom/default_home.php', { 'title': 'Home' })
+        return render(request, 'FittingRoom/default_home.html', { 'title': 'Home' })
 
 
 def display_model(request):

@@ -1,18 +1,17 @@
 {% extends "FittingRoom/base.html" %}
 
 {% block content %}
-        <div class="center">
-            <form class="center" method="post">
-                {% csrf_token %}
-                <div style = "text-align: center;">
-                    <span style = "font-size: 150px; text-align: center;" class = "center">&#9888;</span>
-                    <p>Are you sure you want to delete your account?</p>
-                    <p>
-                        <a href="{% url 'User-Delete-Confirmed' %}" class = "button alt">Yes</a>&emsp;
-                        <a href="{% url 'User-Profile' %}" class = "button">No</a>
-                    </p>
-                </div>
-            </form>
-        </div>
+    <div class="center">
+        <form class="center" method="post">
+            {% csrf_token %}
+            <div style = "text-align: center;">
+                <span style = "font-size: 150px; text-align: center;" class = "center">&#9888;</span>
+                <p>Are you sure you want to delete your account?</p>
+                <p>
+                    <a href="{% url 'User-Delete-Confirmed' %}" class = "button alt">Yes</a>&emsp;
+                    <a href="{% url 'User-Profile' %}" class = "button">No</a>
+                </p>
+            </div>
+        </form>
     </div>
 {% endblock content %}
