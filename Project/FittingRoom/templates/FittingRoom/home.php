@@ -79,26 +79,30 @@
 
                     function positionAlgorithmFoot(foot)
                     {
-                        if (foot <= 1) return 2.5
-                        else
-                            return positionAlgorithmFoot(foot - 1) - 0.45
+                        if (foot == 0) return 0;
+                        else if (foot == 1) return 2.5;
+                        else return positionAlgorithmFoot(foot - 1) - 0.45;
                     }
 
                     function positionAlgorithmInches(inches)
                     {
-                        if (inches <= 1) return 2.5
-                        else
-                            return positionAlgorithmInches(inches - 1) - 0.0375
+                        if (inches == 0) return 0;
+                        else if (inches == 1) return 2.9125;
+                        else return positionAlgorithmInches(inches - 1) - 0.0375;
                     }
 
                     function changeHeight()
                     {
+                        var foot = document.getElementById("foot").value;
+                        var inches = document.getElementById("inches").value;
+
                         checkDress();
+
+                        console.log("Foot: ", foot);
+                        console.log("Inches: ", inches);
 
                         if (dressOn == false)
                         {
-                            var foot = document.getElementById("foot").value;
-                            var inches = document.getElementById("inches").value;
 
                             var clock = new THREE.Clock();
 
@@ -156,18 +160,20 @@
 
                                 var parts = object.children;
 
+                                /*
                                 for (var idx = 0; idx < parts.length; idx++)
                                     console.log(parts[idx])
 
                                 var body = parts[2].children[1];
                                 body.scale.y = 0.5;
                                 console.log(body);
+                                */
 
                                 var mixer = new THREE.AnimationMixer(object);
 
                                 gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
 
-                                if (foot <= 0 && inches <= 0)
+                                if ((foot <= 0 && inches <= 0) || (foot == "" && inches == ""))
                                     gltf.scene.scale.set( 2, 2, 2 );
                                 else
                                 {
@@ -214,10 +220,14 @@
 
                     function dress()
                     {
+                        dressOn = true;
                         checkDress();
 
                         var foot = document.getElementById("foot").value;
                         var inches = document.getElementById("inches").value;
+
+                        console.log("Foot: ", foot);
+                        console.log("Inches: ", inches);
 
                         var clock = new THREE.Clock();
 
@@ -248,19 +258,16 @@
                         // Load the Orbitcontroller
                         var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-                        // Disable Zoom
-                        controls.enableZoom = false;
+                        // Used to enable controls
+                        var shift = false;
 
-                        // Disable Rotation
-                        controls.enableRotate = false;
-
-                        // Disable Keyboard Control Movements
-                        controls.enabled = false;
+                        controls.enableZoom = shift;
+                        controls.enableRotate = shift;
+                        controls.enabled = shift;
 
                         // Load Light
                         var ambientLight = new THREE.AmbientLight( 0xcccccc );
                         scene.add( ambientLight );
-
 
                         var directionalLight = new THREE.DirectionalLight( 0xffffff );
                         directionalLight.position.set( 0, 1, 1 ).normalize();
@@ -285,13 +292,20 @@
                         }
 
                         var mesh = new THREE.Mesh(geometry, material);
-                        var max_position = -0.2125
+                        var max_position = -0.2125;
 
                         if (foot <= 0 && inches <= 0)
                             mesh.position.set(-0.5, -0.7, 1);
                         else
                         {
-                            var pos = -(positionAlgorithmFoot(foot) - (inches * 0.0375));
+                            if (foot == 0)
+                                var pos = -(positionAlgorithmInches(inches));
+                            else
+                            {
+                                var pos = -(positionAlgorithmFoot(foot) - (inches * 0.0375));
+                                console.log("Pos equation: ", positionAlgorithmFoot(foot), "-", inches * 0.0375);
+                            }
+
                             console.log("Pos: ", pos)
 
                             if (pos > max_position)
@@ -308,12 +322,14 @@
 
                             var parts = object.children;
 
+                            /*
                             for (var idx = 0; idx < parts.length; idx++)
                                 console.log(parts[idx])
+                            */
 
                             var body = parts[2].children[1];
                             body.scale.y = 0.5;
-                            console.log(body);
+                            //console.log(body);
 
                             var mixer = new THREE.AnimationMixer(object);
 
@@ -357,7 +373,6 @@
                         }
 
                         render();
-                        dressOn = true;
                     }
 
                 </script>
@@ -376,6 +391,13 @@
                 <button type="button" onclick = "changeHeight()" class = "button alt">Update Model</button>
             </form>
         </div>
+
+        <?php
+            $dir = new RecursiveDirectoryIterator("/static/FittingRoom/Dresses");
+
+            foreach(new RecursiveIteratorIterator($dir) as $filename)
+                echo $filename;
+        ?>
 
 
         <!--<div id = "dress_library" style = "text-align: center;">
