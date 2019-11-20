@@ -5,7 +5,7 @@ var scene = new THREE.Scene();
 
 // Load Camera Perspektive
 var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 3000 );
-camera.position.set( 0, 0, 15 );
+camera.position.set( 0, -3, 15 );
 
 // Load a Renderer
 var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('default_canvas'), antialias: true});
@@ -26,12 +26,11 @@ document.body.appendChild(renderer.domElement);
 
 // Load the Orbitcontroller
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
+var controlSwitch = false;
 
-var shift = false;
-
-controls.enableZoom = false;
-controls.enableRotate = false;
-controls.enabled = false;
+controls.enableZoom = controlSwitch;
+controls.enableRotate = controlSwitch;
+controls.enabled = controlSwitch;
 
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
@@ -49,22 +48,11 @@ function ( gltf )
 {
     var object = gltf.scene;
 
-    var parts = object.children;
-
-    /*
-    for (var idx = 0; idx < parts.length; idx++)
-        console.log(parts[idx])
-
-    var body = parts[2].children[1];
-    body.scale.y = 0.5;
-    console.log(body);
-    */
-    
     var mixer = new THREE.AnimationMixer(object);
 
     gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
 
-    gltf.scene.scale.set( 2, 2, 5 );
+    gltf.scene.scale.set( 2, 2, 2 );
     gltf.scene.position.x = 0;
     gltf.scene.position.y = -3;
     gltf.scene.position.z = 0;

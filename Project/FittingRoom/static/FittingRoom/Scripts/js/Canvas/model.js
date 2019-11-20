@@ -1,3 +1,5 @@
+var path_to_model = "/static/FittingRoom/Models/";
+
 var clock = new THREE.Clock();
 
 //RENDERER
@@ -5,7 +7,7 @@ var scene = new THREE.Scene();
 
 // Load Camera Perspektive
 var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 3000 );
-camera.position.set( 0, 0, 15 );
+camera.position.set( 0, 0, 14 );
 
 // Load a Renderer
 var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('model_canvas'), antialias: true});
@@ -27,11 +29,11 @@ document.body.appendChild(renderer.domElement);
 // Load the Orbitcontroller
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-var shift = false;
+var controlSwitch = false;
 
-controls.enableZoom = shift;
-controls.enableRotate = shift;
-controls.enabled = shift;   // Enable Keyboard controls
+controls.enableZoom = controlSwitch;
+controls.enableRotate = controlSwitch;
+controls.enabled = controlSwitch;   // Enable Keyboard controls
 
 // Load Light
 var ambientLight = new THREE.AmbientLight( 0xcccccc );
@@ -42,21 +44,13 @@ var directionalLight = new THREE.DirectionalLight( 0xffffff );
 directionalLight.position.set( 0, 1, 1 ).normalize();
 scene.add( directionalLight );
 
+var model = path_to_model.concat("greeting.glb");
 
 var loader = new THREE.GLTFLoader();
-loader.load( '/static/FittingRoom/Models/greeting.glb',
+loader.load(model,
 function ( gltf )
 {
     var object = gltf.scene;
-
-    var parts = object.children;
-
-    for (var idx = 0; idx < parts.length; idx++)
-        console.log(parts[idx])
-
-    var body = parts[2].children[1];
-    body.scale.y = 0.5;
-    console.log(body);
 
     var mixer = new THREE.AnimationMixer(object);
 
