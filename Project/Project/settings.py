@@ -126,7 +126,7 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-UPLOAD_ROOT = os.path.join(BASE_DIR, 'upload')
+UPLOAD_ROOT = os.path.join(STATIC_ROOT, 'FittingRoom/upload')
 UPLOAD_URL = '/upload/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

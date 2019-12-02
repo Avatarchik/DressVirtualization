@@ -33,7 +33,6 @@
                 </a>
             </nav>
             <a href="{% url 'FittingRoom-Home' %}"><img style = "width: 100; height:100%;" src = "/static/FittingRoom/Images/logo.png"></a>
-            <a href="{% url 'FittingRoom-Contact' %}"></a>
             <nav class="right">
                 <a href="{% url 'User-Profile' %}" class = "button alt">{{ user.username }}</a>
                 <a href="{% url 'User-Logout' %}" class = "button alt">Logout</a>
@@ -48,13 +47,39 @@
             <ul class="links" style = "text-align: center;">
                 <li><a href="/">Home</a></li>
                 <li><a href="{% url 'FittingRoom-Contact' %}">Contact</a></li>
-                <br>
                 <li>
-                    <div>
-                        <button type="button" class = "button alt" onclick = "wearDress()">Put on dress</button>
-                    </div>
+                    <a href="#" class = "dropbtn" onclick="sampleDropdownBtn()">
+                        Sample Dresses
+                        <i class="fa fa-caret-down"></i>
+                    </a>
                 </li>
-                <br>
+                    <div class="dropbtn">
+                        <div class="dropdown-content" id = "SampleDressDropDown">
+                            {% for key, value in sample_dress_path_list.items %}
+                                <li>
+                                    <input class="sizing" type="image" src='{{value}}'
+                                     value='{{value}}' id="{{ key }}" onclick="wearSampleDress(this)">
+                                </li>
+                            {% endfor %}
+                        </div>
+                    </div>
+                <li>
+                    <a href="#" class = "dropbtn" onclick="importDropdownBtn()">
+                        Imported Dresses
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                </li>
+                    <div class="dropbtn">
+                        <div class="dropdown-content" id = "ImportedDressDropDown">
+                            {% for key, value in upload_dress_path_list.items %}
+                                <li>
+                                    <input class="sizing" type="image" src='{{value}}'
+                                     value='{{value}}' id="{{ key }}" onclick="wearUploadedDress(this)">
+                                </li>
+                            {% endfor %}
+                        </div>
+                    </div>
+                <hr>
             </ul>
             <ul class="actions vertical">
                 <li><a href="{% url 'User-Profile' %}" class = "button fit">{{ user.username }}</a></li>
@@ -66,12 +91,24 @@
             <form class="center" method="post">
                 {% csrf_token %}
                 <script type="text/javascript">
+                    var prevDress = [];
+
+                    function sampleDropdownBtn()
+                    {
+                        document.getElementById("SampleDressDropDown").classList.toggle("show");
+                    }
+
+                    function importDropdownBtn()
+                    {
+                        document.getElementById("ImportedDressDropDown").classList.toggle("show");
+                    }
+
                     var path_to_model = "/static/FittingRoom/Models/";
                     var path_to_dress = "/static/FittingRoom/Dresses/";
                     var dressOn = false;
 
-                    const FOOT_VALUE = 0;
-                    const INCHES_VALUE = 0;
+                    const FOOT_VALUE = 0.4;
+                    const INCHES_VALUE = 0.033333333;
 
                     function displayStatus(heightFoot, heightInches, waistInches)
                     {
@@ -86,27 +123,32 @@
                     function positionAlgorithmFoot(foot)
                     {
                         if (foot == 0) return 0;
-                        else if (foot == 1) return 2.5;
-                        else return positionAlgorithmFoot(foot - 1) - 0.45;
+                        else if (foot == 1) return FOOT_VALUE;
+                        else
+                            return positionAlgorithmFoot(foot - 1) + FOOT_VALUE;
                     }
 
                     function positionAlgorithmInches(inches)
                     {
                         if (inches == 0) return 0;
-                        else if (inches == 1) return 2.9125;
-                        else return positionAlgorithmInches(inches - 1) - 0.0375;
+                        else if (inches == 1) return INCHES_VALUE;
+                        else return positionAlgorithmInches(inches - 1) + INCHES_VALUE;
                     }
 
-                    function changeHeight()
+                    function changeHeight(currentDress)
                     {
-                        var foot = document.getElementById("foot").value;
-                        var inches = document.getElementById("inches").value;
-                        var waist = document.getElementById("waist").value;
+                        var userFoot = document.getElementById("foot").value;
+                        var userInches = document.getElementById("inches").value;
+                        var userWaist = document.getElementById("waist").value;
+
+                        displayStatus(userFoot, userInches, userWaist);
 
                         var clock = new THREE.Clock();
                         var scene = new THREE.Scene();
-                        var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 3000 );
-                        var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('default_canvas'), antialias: true});
+                        var camera = new THREE.PerspectiveCamera( 35,
+                            window.innerWidth / window.innerHeight, 1, 3000 );
+                        var renderer = new THREE.WebGLRenderer(
+                            {canvas: document.getElementById('default_canvas'), antialias: true});
                         var ambientLight = new THREE.AmbientLight( 0xcccccc );
                         var directionalLight = new THREE.DirectionalLight( 0xffffff );
 
@@ -137,51 +179,40 @@
                         scene.add( ambientLight );
                         scene.add( directionalLight );
 
+                        /*
+                        var backgroundLoader = new THREE.TextureLoader();
+                        backgroundLoader.load('/static/FittingRoom/Background/background.png' ,
+                        function(texture)
+                        {
+                            scene.background = texture;
+                        });
+                        */
+
                         if (dressOn)
                         {
-                            var dress = path_to_dress.concat("dress_01.png");
+                            // This is to hold the value of the previous dress
+                            if (prevDress.length == 0)
+                                prevDress[0] = currentDress;
+                            else
+                            {
+                                if (currentDress != undefined)
+                                    prevDress[0] = currentDress;
+                            }
+
+                            var dress = prevDress[0];
                             var texture = new THREE.TextureLoader();
                             var material = new THREE.MeshBasicMaterial( {
                                 map: texture.load(dress), transparent: true});
-                            var length = (foot * 1.38) + (inches * 0.115);
-                            var max_length = 8.395
-                            console.log("Dress Length: ", length);
 
-                            if (foot <= 0 && inches <= 0)
-                                var geometry = new THREE.PlaneGeometry(6.5, 6.9*.75);
-                            else
-                            {
-                                if (length > max_length)
-                                    var geometry = new THREE.PlaneGeometry(6.5, max_length*.75);
-                                else
-                                    var geometry = new THREE.PlaneGeometry(6.5, (length)*.75);
-                            }
+                            var geometry = new THREE.PlaneGeometry(5.3, 7*.75);
 
                             var mesh = new THREE.Mesh(geometry, material);
-                            var max_position = -0.2125;
-
-                            if (foot <= 0 && inches <= 0)
-                                mesh.position.set(-0.5, -0.7, 1);
-                            else
-                            {
-                                if (foot == 0)
-                                    var pos = -(positionAlgorithmInches(inches));
-                                else
-                                {
-                                    var pos = -(positionAlgorithmFoot(foot) - (inches * 0.0375));
-                                    console.log("Pos equation: ", positionAlgorithmFoot(foot), "-", inches * 0.0375);
-                                }
-
-                                console.log("Pos: ", pos)
-
-                                if (pos > max_position)
-                                    mesh.position.set(-0.5, max_position, 1);
-                                else
-                                    mesh.position.set(-0.5, pos, 1);
-                            }
+                            // mesh.position.set(-0.22, -0.55, 1);
+                            mesh.position.set(-0.22, -0.55, 1);
                         }
 
-                        var model = ((!dressOn)? path_to_model.concat("Bashful.glb") : path_to_model.concat("Idle_State_bodyless.glb") );
+                        var model = ((!dressOn)? path_to_model.concat("Bashful.glb")
+                            : path_to_model.concat("Idle_State_bodyless.glb") );
                         var loader = new THREE.GLTFLoader();
                         loader.load( model,
                         function ( gltf )
@@ -191,17 +222,26 @@
 
                             gltf.animations.forEach((clip) => { mixer.clipAction(clip).play() });
 
-                            if (foot <= 0 && inches <= 0)
-                                gltf.scene.scale.set( 2, 2, 2 );
+                            var twelveInches = 12, oneFoot = 1;
+                            if ((userFoot == 0 && userInches < twelveInches)
+                                || (userFoot == "" && userInches < twelveInches)
+                                || (userFoot < oneFoot && userInches == 0)
+                                || (userFoot < oneFoot && userInches == ""))
+                                {
+                                    gltf.scene.position.set(2, 2, 2);
+                                }
                             else
                             {
-                                var y_axis = (foot * 0.4) + (inches * 0.033333333);
-                                var max_height = 2.43; // 6' 1"
+                                var maxInches = 75, maxFoot = 6;
+                                var maxHeight = 2.5;
 
-                                if (y_axis < max_height)
-                                    gltf.scene.scale.set( 2, y_axis, 2 );
-                                else
-                                    gltf.scene.scale.set(2, max_height, 2);
+                                var height = (userFoot * FOOT_VALUE) + (userInches * INCHES_VALUE);
+
+                                if (height > maxHeight)
+                                    height = maxHeight;
+
+                                gltf.scene.scale.set( 2, height, 2 );
+                                console.log(height);
                             }
 
                             gltf.scene.position.x = 0;
@@ -230,10 +270,53 @@
                         render();
                     }
 
-                    function wearDress()
+                    function findIDValue(dress, keysList, arrLength)
+                    {
+                        var currentDress = undefined;
+                        var idx = 0;
+                        var foundDress = false;
+
+                        while (!foundDress && idx < arrLength)
+                        {
+                            if (dress.getAttribute('id') == keysList[idx])
+                            {
+                                currentDress = document.getElementById(keysList[idx]).value;
+                                foundDress = true;
+                            }
+                            else
+                                idx++;
+                        }
+
+                        return currentDress;
+                    }
+
+                    function wearSampleDress(dress)
                     {
                         dressOn = true;
-                        changeHeight();
+
+                        var sDressList = {{ js_sample_dress_data | safe }};
+                        var sKeys = Object.keys(sDressList);
+                        var arrLength = sKeys.length;
+                        var currentDress = findIDValue(dress, sKeys, arrLength);
+
+                        console.log("Dress: ", currentDress);
+
+                        changeHeight(currentDress);
+                    }
+
+                    function wearUploadedDress(dress)
+                    {
+                        dressOn = true;
+
+                        var uDressList = {{ js_upload_dress_data | safe }};
+                        var uKeys = Object.keys(uDressList);
+                        var currentDress = undefined;
+                        var arrLength = uKeys.length;
+                        var currentDress = findIDValue(dress, uKeys, arrLength);
+
+                        console.log("Dress: ", currentDress);
+
+                        changeHeight(currentDress);
                     }
                 </script>
 

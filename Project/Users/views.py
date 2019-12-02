@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib.auth.models import User
+import cv2
+import numpy as np
+from PIL import Image
+import os
 
 
 def register(request):
@@ -40,13 +44,15 @@ def profile(request):
         p_form = ProfileUpdateForm(instance = request.user.profile)
 
     context = {
-        'u_form': u_form,
-        'p_form': p_form
+        'title': "Profile",
+        'user_form': u_form,
+        'profile_form': p_form
      }
 
     from django.http import HttpResponse as response
     response('<h1>{{}}</h1>')
-    return render(request, 'Users/profile.html', context, {'title': 'Profile'})
+    print(f'\n\nContext: {context}\n\n')
+    return render(request, 'Users/profile.html', context)
 
 
 @login_required
@@ -59,12 +65,127 @@ def upload_dress(request):
     context = {  }
     if request.method == 'POST':
         dress = request.FILES['dress_image']
-        save_file_url = settings.UPLOAD_ROOT + '/users/' + request.user.username + '/' + 'dresses/'
-        print(save_file_url)
+
+        print(f"\n\nDress: {dress}\n\n")
+
+        save_file_url = settings.UPLOAD_ROOT + '/users/' + request.user.username + '/dresses/'
+        print(f"\n\nSave File URL: {save_file_url}\n\n")
+
+        dress_path = save_file_url + dress.name
         upload_storage = FileSystemStorage(location = save_file_url, base_url = settings.UPLOAD_ROOT)
+        print(f"\n\ndress_path: {dress_path}\n\n")
+
         name = upload_storage.save(dress.name, dress)
+        print(f"\n\nname: {name}\n\n")
+
         context['url'] = upload_storage.url(name)
+
+        new_file_name = remove_black_background(dress_path, save_file_url)
+        resize_upload(new_file_name)
+
     return render(request, 'Users/upload.html')
+
+
+def show(name, img):
+    cv2.imshow(name, img)
+    while True:
+        key = cv2.waitKey(1)
+        if key == 27: break
+
+
+def resize_upload(dress_file):
+    file_name = dress_file
+
+    img = cv2.pyrDown(cv2.imread(file_name, cv2.IMREAD_UNCHANGED))
+    ret, threshed_img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 127, 255, cv2.THRESH_BINARY)
+    contours, hier = cv2.findContours(threshed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    x_list, y_list = [], []
+    for each in contours:
+        x, y, w, h = cv2.boundingRect(each)
+        x_list.append(x)
+        y_list.append(y)
+
+    rect_x, rect_y = min(x_list), min(y_list)
+    rect_w, rect_h = 0, 0
+    found_contour = False
+
+    for each in contours:
+        x, y, w, h = cv2.boundingRect(each)
+
+        if x == rect_x and y == rect_y:
+            rect_w, rect_h = w, h
+            found_contour = True
+
+            print(f"\n\nrect_x: {rect_x}\n")
+            print(f"rect_y: {rect_y}\n")
+            print(f"rect_w: {rect_w}\n")
+            print(f"rect_h: {rect_h}\n")
+            print(f"(x, y): ({rect_x}, {rect_y})\n")
+            print(f"(x+w, y+h): ({rect_x + rect_w}, {rect_y + rect_h})\n")
+
+            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            break
+
+    if found_contour:
+        img_height, img_width = img.shape[:2]
+
+        print(f"\n\nImg Dimension: {img.shape[:2]}\n\n")
+        # show("img", img)
+
+        try:
+            img1 = cv2.imread(file_name, cv2.IMREAD_UNCHANGED)
+            print(f"\n\nimg1 dimension: {img1.shape[:2]}\n\n")
+            # show("img1", img1)
+
+            try:
+                resized = cv2.resize(img1, (img_width, img_height), interpolation = cv2.INTER_AREA)
+                # show("resized", resized)
+                cv2.imwrite(file_name, resized)
+
+                try:
+                    img_crop = Image.open(file_name)
+                    width, height = img_crop.size
+                    print(f"\n\nimg_crop: ({width}, {height})\n\n")
+                    result = img_crop.crop((rect_x, rect_y, (rect_x + rect_w), (rect_y + rect_h)))
+                    result.save(file_name, "PNG")
+
+                except:
+                    print(f"\n\nCropping to ({rect_x}, {rect_y}, ({rect_x + rect_w}), ({rect_y + rect_h})) error\n\n")
+            except:
+                print(f"\n\nResize to ({img_width}, {img_height}) error\n\n")
+        except:
+            print("\n\nReading Img1 error\n\n")
+
+        try:
+            rescaled = cv2.imread(file_name, cv2.IMREAD_UNCHANGED)
+            resize_resized = cv2.resize(rescaled, (900, 827), interpolation = cv2.INTER_AREA)
+            cv2.imwrite(file_name, resize_resized)
+        except:
+            print("\n\nResize to (900, 827) error\n\n")
+    else:
+        print(f'\n\nUnable to find contour\n\n')
+
+
+def remove_black_background(dress_file, save_file_url):
+    original_file_name = dress_file
+
+    src = cv2.imread(original_file_name, cv2.IMREAD_UNCHANGED)
+    temp = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    _,alpha = cv2.threshold(temp, 0, 255, cv2.THRESH_BINARY)
+    b, g, r = cv2.split(src)
+    rgba = [b, g, r, alpha]
+    dst = cv2.merge(rgba, 4)
+
+    new_file_name = os.path.splitext(original_file_name)[0] + '.png'
+    print(f"\n\nnew_file_name: {new_file_name}\n\n")
+    cv2.imwrite(new_file_name, dst)
+
+    for filename in os.listdir(os.path.join(settings.STATIC_ROOT, save_file_url)):
+        if '.png' not in filename:
+            os.remove(original_file_name)
+
+    return new_file_name
 
 
 @login_required
@@ -78,15 +199,15 @@ def delete_profile(request):
         u = User.objects.get(username = request.user.username);
         u.delete()
         messages.error(request, f"{ username } is deleted")
-        print('User successfully deleted')
+        print('\n\nUser successfully deleted\n\n')
 
     except User.DoesNotExist:
         messages.error(request, f"{ username } does not exist")
-        print('User does not exist')
+        print('\n\nUser does not exist\n\n')
         return render(request, 'FittingRoom/home.html', {'title': 'Home'})
 
     except Exception as e:
-        print('Unknown error occurred')
+        print('\n\nUnknown error occurred\n\n')
         return render(request, 'Users/goodbye.html', {'title': 'Home'})
 
     return render(request, 'Users/goodbye.html', {'title': 'Home'})

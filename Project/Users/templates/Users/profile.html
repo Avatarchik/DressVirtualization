@@ -19,8 +19,8 @@
                 </div>
                 <fieldset class = "form-group">
                     <legend class = "border-bottom mb-4">{{ user.username }}'s Profile'</legend>
-                    {{ u_form | crispy }}
-                    {{ p_form | crispy }}
+                    {{ user_form | crispy }}
+                    {{ profile_form | crispy }}
                 </fieldset>
                 <div class="form-group">
                     <br/><button type="submit" class = "btn btn-outline-info">Update</button>
