@@ -25,7 +25,7 @@ SECRET_KEY = '01oc&$t6go9=)cn#c#!weu4j-gt=vro8%ofejm$5=akc)v$_j^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [https://dress-virtualization.herokuapp.com/]
 
 
 # Application definition
