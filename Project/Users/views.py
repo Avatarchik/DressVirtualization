@@ -170,23 +170,26 @@ def resize_upload(dress_file):
 def remove_black_background(dress_file, save_file_url):
     original_file_name = dress_file
 
-    src = cv2.imread(original_file_name, cv2.IMREAD_UNCHANGED)
-    temp = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-    _,alpha = cv2.threshold(temp, 0, 255, cv2.THRESH_BINARY)
-    b, g, r = cv2.split(src)
-    rgba = [b, g, r, alpha]
-    dst = cv2.merge(rgba, 4)
-
     new_file_name = os.path.splitext(original_file_name)[0] + '.png'
     print(f"\n\nnew_file_name: {new_file_name}\n\n")
-    cv2.imwrite(new_file_name, dst)
 
-    for filename in os.listdir(os.path.join(settings.STATIC_ROOT, save_file_url)):
-        if '.png' not in filename:
-            os.remove(original_file_name)
+    try:
+        src = cv2.imread(original_file_name, cv2.IMREAD_UNCHANGED)
+        temp = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+        _,alpha = cv2.threshold(temp, 0, 255, cv2.THRESH_BINARY)
+        b, g, r = cv2.split(src)
+        rgba = [b, g, r, alpha]
+        dst = cv2.merge(rgba, 4)
 
+        cv2.imwrite(new_file_name, dst)
+
+        for filename in os.listdir(os.path.join(settings.STATIC_ROOT, save_file_url)):
+            if '.png' not in filename:
+                os.remove(original_file_name)
+    except:
+        print(f"Unable to detect background")
+        
     return new_file_name
-
 
 @login_required
 def delete_profile_confirmation(request):
