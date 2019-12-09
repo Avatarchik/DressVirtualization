@@ -26,7 +26,8 @@ urlpatterns = [
          name='password_reset_confirm'),
     path('upload/', user_views.upload_dress, name = 'User-Upload'),
     path('delete-confirmation/', user_views.delete_profile_confirmation, name = 'User-Delete-Confirmation'),
-    path('delete-confirmed/', user_views.delete_profile, name = 'User-Delete-Confirmed')
+    path('delete-confirmed/', user_views.delete_profile, name = 'User-Delete-Confirmed'),
+    path('admin-upload/', user_views.admin_upload, name = 'User-Admin-Upload')
 ]
 
 if settings.DEBUG:

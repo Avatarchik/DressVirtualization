@@ -28,6 +28,9 @@
                 <hr>
             </div>
             <div style = "text-align: center;">
+                {% if user.is_superuser %}
+                    <a href="{% url 'User-Admin-Upload' %}" class = "button alt" width = 50>Upload Sample</a>
+                {% endif %}
                 <a href="{% url 'User-Upload' %}" class = "button alt" width = 50>Upload Dresses</a>
             </div>
             {% if not user.is_superuser %}
