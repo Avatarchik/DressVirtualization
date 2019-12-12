@@ -2,6 +2,14 @@
 
 {% block content %}
     <div class = "form-group" style = "text-align: center;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class = "center">
+                    <h3 style = "text-align: center;"> <font color = "red">{{ message }}</font></h3>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <br/><h4>Upload Dresses</h4>
         <form class = "center" method="post" enctype = "multipart/form-data">
             {% csrf_token %}
@@ -9,7 +17,7 @@
             <button type="submit" name="button">Upload</button>
         </form>
         {% if url %}
-        <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
+            <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
         {% endif %}
     </div>
 
