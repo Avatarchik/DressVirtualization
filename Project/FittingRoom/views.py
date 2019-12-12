@@ -7,7 +7,7 @@ import os
 import json
 import logging
 # import boto3
-from botocore.exceptions import ClientError
+# from botocore.exceptions import ClientError
 import cv2
 import imutils
 

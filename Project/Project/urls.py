@@ -13,17 +13,17 @@ urlpatterns = [
         name = 'User-Login'),
     path('logout/', auth_views.LogoutView.as_view( template_name = 'Users/logout.html' ), name = 'User-Logout'),
     path('profile/', user_views.profile, name = 'User-Profile'),
-    path('password-reset/',
-        auth_views.PasswordResetView.as_view(template_name = 'Users/reset_pwd.html'),
-        name = 'User-Reset-Pwd'),
-    path('password-reset/done/',
-        auth_views.PasswordResetDoneView.as_view(template_name = "Users/reset_pwd_done.html"),
-        name = 'User-Reset-Pwd-Done'),
-    path('password-reset-confirm/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(
-             template_name='Users/pwd_reset_confirm.html'
-         ),
-         name='password_reset_confirm'),
+    # path('password-reset/',
+    #     auth_views.PasswordResetView.as_view(template_name = 'Users/reset_pwd.html'),
+    #     name = 'User-Reset-Pwd'),
+    # path('password-reset/done/',
+    #     auth_views.PasswordResetDoneView.as_view(template_name = "Users/reset_pwd_done.html"),
+    #     name = 'User-Reset-Pwd-Done'),
+    # path('password-reset-confirm/<uidb64>/<token>/',
+    #      auth_views.PasswordResetConfirmView.as_view(
+    #          template_name='Users/pwd_reset_confirm.html'
+    #      ),
+    #      name='password_reset_confirm'),
     path('upload/', user_views.upload_dress, name = 'User-Upload'),
     path('delete-confirmation/', user_views.delete_profile_confirmation, name = 'User-Delete-Confirmation'),
     path('delete-confirmed/', user_views.delete_profile, name = 'User-Delete-Confirmed'),

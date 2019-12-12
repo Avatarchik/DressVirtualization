@@ -29,7 +29,11 @@ If you don't have Linux OS then download VMware or VirtualBox and install a Linu
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+1) Create Heroku Account
+2) Run "heroku create <Application-name>"
+3) Create Procfile
+4) Set STATIC_ROOT to staticfiles
+?) Run "git push heroku master"
 
 
 ## Built With

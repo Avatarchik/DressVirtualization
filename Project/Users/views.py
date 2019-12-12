@@ -13,7 +13,7 @@ from PIL import Image
 import os
 import logging
 # import boto3
-from botocore.exceptions import ClientError
+# from botocore.exceptions import ClientError
 
 
 def register(request):
