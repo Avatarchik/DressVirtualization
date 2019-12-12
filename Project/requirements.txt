@@ -15,8 +15,5 @@ pytz==2019.3
 s3transfer==0.2.1
 six==1.13.0
 sqlparse==0.3.0
-<<<<<<< HEAD
 gunicorn==20.0.4
-=======
 urllib3==1.25.7
->>>>>>> 3af86ffd874452adb569648db48b32b6419cde26

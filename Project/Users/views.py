@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 import os
 import logging
-import boto3
+# import boto3
 from botocore.exceptions import ClientError
 
 
@@ -81,8 +81,8 @@ def upload_dress(request):
         new_file_name = remove_black_background(dress_path, save_file_url)
         resize_upload(request, new_file_name)
 
-        if not request.user.is_superuser:
-            upload_to_s3(request, new_file_name)
+        # if not request.user.is_superuser:
+        #     upload_to_s3(request, new_file_name)
 
     return render(request, 'Users/upload.html')
 
@@ -106,22 +106,22 @@ def admin_upload(request):
     return render(request, 'Users/adminUpload.html')
 
 
-def upload_to_s3(request, file_name, bucket_name = None, object_name = None):
-    bucket_name = str(request.user.username) + '-files'
-
-    # If S3 object_name was not specified, then use new_file_name
-    if object_name is None:
-        object_name = file_name
-
-    s3_client = boto3.client('s3')
-    try:
-        response = s3_client.upload_file(str(file_name), bucket_name, object_name)
-        # print(f'File \"{file_name}\" was successfully uploaded to AWS S3!')
-    except ClientError as e:
-        logging.error(e)
-        return False
-
-    return True
+# def upload_to_s3(request, file_name, bucket_name = None, object_name = None):
+#     bucket_name = str(request.user.username) + '-files'
+#
+#     # If S3 object_name was not specified, then use new_file_name
+#     if object_name is None:
+#         object_name = file_name
+#
+#     s3_client = boto3.client('s3')
+#     try:
+#         response = s3_client.upload_file(str(file_name), bucket_name, object_name)
+#         # print(f'File \"{file_name}\" was successfully uploaded to AWS S3!')
+#     except ClientError as e:
+#         logging.error(e)
+#         return False
+#
+#     return True
 
 
 def show(name, img):

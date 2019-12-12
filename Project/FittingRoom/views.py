@@ -6,7 +6,7 @@ from django.conf import settings
 import os
 import json
 import logging
-import boto3
+# import boto3
 from botocore.exceptions import ClientError
 import cv2
 import imutils
@@ -24,9 +24,9 @@ def home(request):
 
         print(f'\nPath to {user_name} exist: {os.path.exists(path_to_uploaded_dresses)}\n')
 
-        check_bucket_exist(user_name)
-        if not request.user.is_superuser:
-            get_all_s3_keys(user_name)
+        # check_bucket_exist(user_name)
+        # if not request.user.is_superuser:
+        #     get_all_s3_keys(user_name)
 
         count = 0
         for filename in os.listdir(full_path_to_sample_dresses):
@@ -144,39 +144,39 @@ def delete_imported_dress(request, file_name, path):
             print(f'\nFile has been deleted.')
 
 
-def check_bucket_exist(user_name):
-    bucket_name = user_name + '-files'
-    print(f'This is the bucket name: {bucket_name}')
-    s3 = boto3.resource('s3')
-    if s3.Bucket(bucket_name).creation_date is None:
-        print(f'Date of bucket is None')
-        create_bucket(bucket_name)
-    else:
-        print(f'Bucket \"{bucket_name}\" exists.')
-
-
-def create_bucket(bucket_name):
-    try:
-        s3_client = boto3.client('s3')
-        s3_client.create_bucket(Bucket = bucket_name)
-        print(f'Bucket \"{bucket_name}\" has been created!')
-    except ClientError as e:
-        logging.error(e)
-        return False
-    return True
-
-
-def get_all_s3_keys(user_name):
-    '''Get a list of all keys in an S3 bucket.'''
-    bucket_name = user_name + '-files'
-    s3 = boto3.client('s3')
-    resp = s3.list_objects_v2(Bucket = bucket_name)
-
-    if resp['KeyCount'] != 0:
-        keys = []
-        kwargs = { 'Bucket': bucket_name }
-        for obj in resp['Contents']:
-            keys.append(obj['Key'])
+# def check_bucket_exist(user_name):
+#     bucket_name = user_name + '-files'
+#     print(f'This is the bucket name: {bucket_name}')
+#     s3 = boto3.resource('s3')
+#     if s3.Bucket(bucket_name).creation_date is None:
+#         print(f'Date of bucket is None')
+#         create_bucket(bucket_name)
+#     else:
+#         print(f'Bucket \"{bucket_name}\" exists.')
+#
+#
+# def create_bucket(bucket_name):
+#     try:
+#         s3_client = boto3.client('s3')
+#         s3_client.create_bucket(Bucket = bucket_name)
+#         print(f'Bucket \"{bucket_name}\" has been created!')
+#     except ClientError as e:
+#         logging.error(e)
+#         return False
+#     return True
+#
+#
+# def get_all_s3_keys(user_name):
+#     '''Get a list of all keys in an S3 bucket.'''
+#     bucket_name = user_name + '-files'
+#     s3 = boto3.client('s3')
+#     resp = s3.list_objects_v2(Bucket = bucket_name)
+#
+#     if resp['KeyCount'] != 0:
+#         keys = []
+#         kwargs = { 'Bucket': bucket_name }
+#         for obj in resp['Contents']:
+#             keys.append(obj['Key'])
 
 
 def display_model(request):
