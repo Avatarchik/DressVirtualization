@@ -3,8 +3,8 @@ This is a project for CS 4800 - Software Engineering. For this project, we creat
 
 
 ## Getting Started
-For the best results, please use a Linux System. The project was created on a Linux environment and has not been tested on other OS. 
-If you don't have Linux OS then download VMware or VirtualBox and install a Linux distro. 
+For the best results, please use a Linux System. The project was created on a Linux environment and has not been fully run on other Operating Systems.
+If you don't have Linux OS, I recommend you download VMware or VirtualBox and install a Linux distro for best results. 
 
 
 ### Prerequisites
