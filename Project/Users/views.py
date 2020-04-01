@@ -12,8 +12,8 @@ import numpy as np
 from PIL import Image
 import os
 import logging
-# import boto3
-# from botocore.exceptions import ClientError
+import boto3
+from botocore.exceptions import ClientError
 
 
 def register(request):
@@ -55,13 +55,7 @@ def profile(request):
 
     from django.http import HttpResponse as response
     response('<h1>{{}}</h1>')
-    print(f'\n\nContext: {context}\n\n')
     return render(request, 'Users/profile.html', context)
-
-
-@login_required
-def adminLogout(request):
-    return redirect('FittingRoom-Home')
 
 
 @login_required
@@ -81,8 +75,8 @@ def upload_dress(request):
         new_file_name = remove_black_background(dress_path, save_file_url)
         resize_upload(request, new_file_name)
 
-        # if not request.user.is_superuser:
-        #     upload_to_s3(request, new_file_name)
+        if not request.user.is_superuser:
+            upload_to_s3(request, new_file_name)
 
     return render(request, 'Users/upload.html')
 
@@ -106,22 +100,21 @@ def admin_upload(request):
     return render(request, 'Users/adminUpload.html')
 
 
-# def upload_to_s3(request, file_name, bucket_name = None, object_name = None):
-#     bucket_name = str(request.user.username) + '-files'
-#
-#     # If S3 object_name was not specified, then use new_file_name
-#     if object_name is None:
-#         object_name = file_name
-#
-#     s3_client = boto3.client('s3')
-#     try:
-#         response = s3_client.upload_file(str(file_name), bucket_name, object_name)
-#         # print(f'File \"{file_name}\" was successfully uploaded to AWS S3!')
-#     except ClientError as e:
-#         logging.error(e)
-#         return False
-#
-#     return True
+def upload_to_s3(request, file_name, bucket_name = None, object_name = None):
+    bucket_name = str(request.user.username) + '-files'
+
+    # If S3 object_name was not specified, then use new_file_name
+    if object_name is None:
+        object_name = file_name
+
+    s3_client = boto3.client('s3')
+    try:
+        response = s3_client.upload_file(str(file_name), bucket_name, object_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+
+    return True
 
 
 def show(name, img):
@@ -155,62 +148,38 @@ def resize_upload(request, dress_file):
             rect_w, rect_h = w, h
             found_contour = True
 
-            # print(f"\n\nrect_x: {rect_x}\n")
-            # print(f"rect_y: {rect_y}\n")
-            # print(f"rect_w: {rect_w}\n")
-            # print(f"rect_h: {rect_h}\n")
-            # print(f"(x, y): ({rect_x}, {rect_y})\n")
-            # print(f"(x+w, y+h): ({rect_x + rect_w}, {rect_y + rect_h})\n")
-
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
             break
 
     if found_contour:
         img_height, img_width = img.shape[:2]
 
-        # print(f"\n\nImg Dimension: {img.shape[:2]}\n\n")
-        # show("img", img)
-
         try:
             img1 = cv2.imread(file_name, cv2.IMREAD_UNCHANGED)
-            # print(f"\n\nimg1 dimension: {img1.shape[:2]}\n\n")
-            # show("img1", img1)
 
             try:
                 resized = cv2.resize(img1, (img_width, img_height), interpolation = cv2.INTER_AREA)
-                # show("resized", resized)
                 cv2.imwrite(file_name, resized)
 
                 try:
                     img_crop = Image.open(file_name)
                     width, height = img_crop.size
-                    # print(f"\n\nimg_crop: ({width}, {height})\n\n")
                     result = img_crop.crop((rect_x, rect_y, (rect_x + rect_w), (rect_y + rect_h)))
                     result.save(file_name, "PNG")
                 except:
-                    # print(f"\n\nCropping to ({rect_x}, {rect_y}, ({rect_x + rect_w}), ({rect_y + rect_h})) error\n\n")
                     pass
             except:
-                # print(f"\n\nResize to ({img_width}, {img_height}) error\n\n")
                 pass
         except:
-            # print("\n\nReading Img1 error\n\n")
             pass
-
-        # while True:
-        #     key = cv2.waitKey(1)
-        #     if key == 27: break
-        # cv2.destroyAllWindows()
 
         try:
             rescaled = cv2.imread(file_name, cv2.IMREAD_UNCHANGED)
             resize_resized = cv2.resize(rescaled, (900, 827), interpolation = cv2.INTER_AREA)
             cv2.imwrite(file_name, resize_resized)
         except:
-            # print("\n\nResize to (900, 827) error\n\n")
             pass
     else:
-        print(f'\n\nUnable to find contour.\n\n')
         messages.error(request, 'Unable to find contour for the dress you imported.')
 
 
@@ -218,7 +187,6 @@ def remove_black_background(dress_file, save_file_url):
     original_file_name = dress_file
 
     new_file_name = os.path.splitext(original_file_name)[0] + '.png'
-    print(f"\n\nnew_file_name: {new_file_name}\n\n")
 
     try:
         src = cv2.imread(original_file_name, cv2.IMREAD_UNCHANGED)

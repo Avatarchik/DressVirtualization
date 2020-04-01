@@ -47,50 +47,52 @@
             </nav>
         </header>
 
-        <!-- Menu -->
-        <nav id="menu">
-            <div style = "text-align: center;">
-                <h1>Menu</h1><hr>
-            </div>
-            <ul class="links" style = "text-align: center;">
-                <li><a href="/">Home</a></li><hr>
-            </ul>
-            <ul class="actions vertical">
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'User-Profile' %}" class = "button fit">{{ user.username }}</a></li>
-                    <li><a href="{% url 'User-Logout' %}" class = "button fit">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'User-Login' %}" class="button fit">Login</a></li>
-                    <li><a href = "{% url 'User-Register' %}" class = "button fit">Register</a></li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% if not user.is_authenticated %}
+            <!-- Menu -->
+            <nav id="menu">
+                <div style = "text-align: center;">
+                    <h1>Menu</h1><hr>
+                </div>
+                <ul class="links" style = "text-align: center;">
+                    <li><a href="/">Home</a></li><hr>
+                </ul>
+                <ul class="actions vertical">
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'User-Profile' %}" class = "button fit">{{ user.username }}</a></li>
+                        <li><a href="{% url 'User-Logout' %}" class = "button fit">Logout</a></li>
+                    {% else %}
+                        <li><a href="{% url 'User-Login' %}" class="button fit">Login</a></li>
+                        <li><a href = "{% url 'User-Register' %}" class = "button fit">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
 
         {% block content %}{% endblock content %}
 
-        <!-- Footer -->
-        <footer id="footer">
-            <div class="inner">
-                <h2>Get In Touch</h2>
-                <ul class="actions">
-                    <li>
-                        <span class="icon fa-phone"></span>
-                        <a href="#">(909) 869-7659</a>
-                    </li>
-                    <li>
-                        <span class="icon fa-envelope"></span>
-                        <a href="#">info@perfectfit.com</a>
-                    </li>
-                    <li>
-                        <span class="fa fa-map-marker"></span>
-                        3801 W Temple Ave, Pomona, CA 91768
-                    </li>
-                </ul>
-            </div>
-            <div class="copyright">
-                &copy; 2019 Perfect-Fit. All rights reserved.
-            </div>
-        </footer>
+        {% if not user.is_authenticated %}
+            <!-- Footer -->
+            <footer id="footer">
+                <div class="inner">
+                    <h2>Get In Touch</h2>
+                    <ul class="actions">
+                        <li>
+                            <span class="icon fa-github"></span>
+                            <a href="https://github.com/jdao25">
+                                https://github.com/jdao25
+                            </a>
+                        </li>
+
+                        <li>
+                            <span class="icon fa-linkedin"></span>
+                            <a href="https://www.linkedin.com/in/johnny-dao/">
+                                https://www.linkedin.com/in/johnny-dao/
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </footer>
+        {% endif %}
 
         <!-- Scripts -->
         <script src="/static/FittingRoom/Scripts/js/jquery.min.js"></script>

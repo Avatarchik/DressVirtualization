@@ -6,8 +6,8 @@ from django.conf import settings
 import os
 import json
 import logging
-# import boto3
-# from botocore.exceptions import ClientError
+import boto3
+from botocore.exceptions import ClientError
 import cv2
 import imutils
 
@@ -22,11 +22,12 @@ def home(request):
         path_to_uploaded_dresses = 'FittingRoom/static/FittingRoom/upload/users/' + request.user.username
         full_path_to_sample_dresses = os.path.join(settings.STATIC_ROOT, path_to_sample_dresses)
 
-        print(f'\nPath to {user_name} exist: {os.path.exists(path_to_uploaded_dresses)}\n')
+        check_bucket_exist(user_name)
 
-        # check_bucket_exist(user_name)
-        # if not request.user.is_superuser:
-        #     get_all_s3_keys(user_name)
+        print("Working so far")
+
+        if not request.user.is_superuser:
+            get_all_s3_keys(user_name)
 
         count = 0
         for filename in os.listdir(full_path_to_sample_dresses):
@@ -57,11 +58,6 @@ def home(request):
         else:
             print(f'\nUser \"{user_name}\" has not imported any dresses\n')
 
-        print(f'\nSample Dress List:\n{sample_dresses_path_list}\n')
-        print(f'\nSample Dress Midpoint List:\n{sample_dresses_midpoint}\n')
-        print(f'\nUploaded Dress List:\n{uploaded_dresses_path_list}\n')
-        print(f'\nUploaded Dress Midpoint List:\n{uploaded_dresses_midpoint}\n')
-
     context = {
         'title': 'Home',
         'sample_dresses_path_list': sample_dresses_path_list,
@@ -72,10 +68,7 @@ def home(request):
         'js_uploaded_dresses_midpoint_data': json.dumps(uploaded_dresses_midpoint)
     }
 
-    if request.user.is_authenticated:
-        return render(request, 'FittingRoom/home.html', context)
-    else:
-        return render(request, 'FittingRoom/default_home.html', { 'title': 'Home' })
+    return render(request, 'FittingRoom/home.html', context)
 
 
 def find_middle(file_name):
@@ -132,51 +125,50 @@ def check_valid_dresses(request):
             print(f'Contour for \"{filename}\" not found.')
             delete_imported_dress(request, file_name, path)
 
+
 def delete_imported_dress(request, file_name, path):
     img_to_delete = file_name
     img = os.path.basename(img_to_delete)
-    print(f'img: {img}')
 
     for filename in os.listdir(path):
-        print(f'filename: {filename}')
         if filename == img:
             os.remove(img_to_delete)
-            print(f'\nFile has been deleted.')
 
 
-# def check_bucket_exist(user_name):
-#     bucket_name = user_name + '-files'
-#     print(f'This is the bucket name: {bucket_name}')
-#     s3 = boto3.resource('s3')
-#     if s3.Bucket(bucket_name).creation_date is None:
-#         print(f'Date of bucket is None')
-#         create_bucket(bucket_name)
-#     else:
-#         print(f'Bucket \"{bucket_name}\" exists.')
-#
-#
-# def create_bucket(bucket_name):
-#     try:
-#         s3_client = boto3.client('s3')
-#         s3_client.create_bucket(Bucket = bucket_name)
-#         print(f'Bucket \"{bucket_name}\" has been created!')
-#     except ClientError as e:
-#         logging.error(e)
-#         return False
-#     return True
-#
-#
-# def get_all_s3_keys(user_name):
-#     '''Get a list of all keys in an S3 bucket.'''
-#     bucket_name = user_name + '-files'
-#     s3 = boto3.client('s3')
-#     resp = s3.list_objects_v2(Bucket = bucket_name)
-#
-#     if resp['KeyCount'] != 0:
-#         keys = []
-#         kwargs = { 'Bucket': bucket_name }
-#         for obj in resp['Contents']:
-#             keys.append(obj['Key'])
+def check_bucket_exist(user_name):
+    bucket_name = user_name + '-files-files'
+    print(f'This is the bucket name: {bucket_name}')
+    s3 = boto3.resource('s3')
+
+    if s3.Bucket(bucket_name).creation_date is None:
+        print(f'Date of bucket is None')
+        create_bucket(bucket_name)
+    else:
+        print(f'Bucket \"{bucket_name}\" exists.')
+
+
+def create_bucket(bucket_name):
+    try:
+        s3_client = boto3.client('s3')
+        s3_client.create_bucket(Bucket = bucket_name)
+        print(f'Bucket \"{bucket_name}\" has been created!')
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
+
+def get_all_s3_keys(user_name):
+    '''Get a list of all keys in an S3 bucket.'''
+    bucket_name = user_name + '-files-files'
+    s3 = boto3.client('s3')
+    resp = s3.list_objects_v2(Bucket = bucket_name)
+
+    if resp['KeyCount'] != 0:
+        keys = []
+        kwargs = { 'Bucket': bucket_name }
+        for obj in resp['Contents']:
+            keys.append(obj['Key'])
 
 
 def display_model(request):
@@ -201,6 +193,4 @@ def dress_library(request):
         'dress_list': dress_list
     }
 
-    print(f'files_list: {files_list}')
-    print(f'context: {dress_list}')
     return render(request, 'FittingRoom/homeDress.html', context, {'title': 'Test'})
