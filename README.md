@@ -38,6 +38,8 @@ pip install -r requirements.txt
 4) Change "STATIC_ROOT" to "staticfiles"
 5) Run "git push heroku master"
 
+Heroku link: [https://perfectfitsite.herokuapp.com/](https://perfectfitsite.herokuapp.com/)
+
 
 ## Built With
 * [Django](https://docs.djangoproject.com/en/3.0/) - The web framework used
