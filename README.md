@@ -13,9 +13,12 @@ If you don't have Linux OS, I recommend you download VMware or VirtualBox and in
 - Django 3.0 
 - Pillow 
 - Django storages 
-- Django crispy Forms <br /><br />
-"Required packages will be install when run 'pip install -r requirements.txt'"
+- Django crispy Forms
 
+### Installing Prerequisites
+``` bash
+pip install -r requirements.txt
+```
 
 ### Installing
 1) (Optional but recommended) Use Linux OS
